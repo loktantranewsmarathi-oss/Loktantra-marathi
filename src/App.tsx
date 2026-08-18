@@ -125,14 +125,22 @@ const [newPassword, setNewPassword] = useState('');
         imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&q=80&w=1000'
       });
     }
-  };
+  };useEffect(() => {
+  const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      setIsRecoveryMode(true);
+    }
+  });
+
+  return () => listener.subscription.unsubscribe();
+}, []);
 
   // Filter articles based on category or search query
   const filteredSearchArticles = searchQuery.trim()
     ? allArticles.filter(a => 
         a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         a.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        a.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+}a.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.category.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
@@ -141,7 +149,51 @@ const [newPassword, setNewPassword] = useState('');
     ? allArticles
     : allArticles.filter(a => a.category === activeCategory);
 
-  if (isAdminRoute) return <AdminPanel onClose={() => { window.location.hash = ''; }} />;
+ if (isRecoveryMode) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-4">
+          नवीन पासवर्ड सेट करा
+        </h2>
+
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="नवीन पासवर्ड"
+          className="w-full border rounded-lg p-3 mb-4"
+        />
+
+        <button
+          onClick={async () => {
+            if (newPassword.length < 6) {
+              alert('पासवर्ड किमान 6 अक्षरांचा असावा');
+              return;
+            }
+
+            const { error } = await supabase.auth.updateUser({
+              password: newPassword,
+            });
+
+            if (error) {
+              alert(error.message);
+              return;
+            }
+
+            alert('पासवर्ड यशस्वीरित्या बदलला आहे');
+            setIsRecoveryMode(false);
+            setNewPassword('');
+            window.location.hash = '#admin';
+          }}
+          className="w-full bg-red-600 text-white rounded-lg p-3 font-bold"
+        >
+          पासवर्ड बदला
+        </button>
+      </div>
+    </div>
+  );
+ } if (isAdminRoute) return <AdminPanel onClose={() => { window.location.hash = ''; }} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans-marathi selection:bg-red-700 selection:text-white">
