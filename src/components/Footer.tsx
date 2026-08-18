@@ -12,17 +12,20 @@ import {
   Heart 
 } from 'lucide-react';
 import { OFFICE_CONTACT_INFO } from '../data/newsData';
+import { DEFAULT_SITE_SETTINGS, SiteSettings } from './SiteSettings';
 
 interface FooterProps {
   onSelectCategory: (cat: any) => void;
   onOpenEPaper: () => void;
   onOpenLiveTv: () => void;
+  siteSettings?: SiteSettings;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onSelectCategory,
   onOpenEPaper,
-  onOpenLiveTv
+  onOpenLiveTv,
+  siteSettings = DEFAULT_SITE_SETTINGS
 }) => {
   const [activePolicyModal, setActivePolicyModal] = useState<string | null>(null);
 
@@ -33,7 +36,7 @@ export const Footer: React.FC<FooterProps> = ({
     },
     'Contact Us': {
       title: 'संपर्क (Contact Us)',
-      body: `लोकतंत्र वृत्तपत्र, लोकतंत्र मराठी न्यूज\nशॉप नंबर 03, उंबरखेड रोड, पिंपळगाव बसवंत, ता. निफाड, जि. नाशिक, महाराष्ट्र – 422209\nकार्यालयीन संपर्क: 7668525252, 9860541550\nसंपादक: रविंद्र राजाराम क्षिरसागर, प्रविण रामराव घुमरे\nई-मेल: loktantranewsmarathi@gmail.com`
+      body: `लोकतंत्र वृत्तपत्र, लोकतंत्र मराठी न्यूज\n${siteSettings.address}\nकार्यालयीन संपर्क: ${siteSettings.phone}\nसंपादक: ${siteSettings.editorName}\nई-मेल: ${siteSettings.email || '—'}`
     },
     'Privacy Policy': {
       title: 'गोपनीयता धोरण (Privacy Policy)',
@@ -63,13 +66,12 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 1: Brand & Tagline (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-2">
-              <h2 className="text-3xl font-extrabold text-white font-newspaper">
-                <span className="text-[#B91C1C]">लोक</span>तंत्र <span className="text-slate-200">मराठी</span>
+              <h2 className="text-3xl font-extrabold text-white font-newspaper">{siteSettings.siteName}
               </h2>
             </div>
 
             <p className="text-amber-400 font-bold font-serif-marathi text-base">
-              "जनतेचा आवाज, जनतेसाठी"
+              "{siteSettings.tagline}"
             </p>
 
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -83,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({
               </span>
               <div className="flex items-center gap-2">
                 <a
-                  href={OFFICE_CONTACT_INFO.social.facebook}
+                  href={siteSettings.facebook || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-slate-900 hover:bg-blue-600 text-white rounded-lg transition border border-slate-800"
@@ -92,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({
                   <Facebook className="w-4 h-4" />
                 </a>
                 <a
-                  href={OFFICE_CONTACT_INFO.social.instagram}
+                  href={siteSettings.instagram || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-slate-900 hover:bg-pink-600 text-white rounded-lg transition border border-slate-800"
@@ -101,7 +103,7 @@ export const Footer: React.FC<FooterProps> = ({
                   <Instagram className="w-4 h-4" />
                 </a>
                 <a
-                  href={OFFICE_CONTACT_INFO.social.youtube}
+                  href={siteSettings.youtube || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-slate-900 hover:bg-red-600 text-white rounded-lg transition border border-slate-800"
@@ -110,7 +112,7 @@ export const Footer: React.FC<FooterProps> = ({
                   <Youtube className="w-4 h-4" />
                 </a>
                 <a
-                  href={OFFICE_CONTACT_INFO.social.whatsapp}
+                  href={siteSettings.whatsapp ? `https://wa.me/${siteSettings.whatsapp.replace(/\D/g,'')}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-slate-900 hover:bg-emerald-600 text-white rounded-lg transition border border-slate-800"
@@ -171,16 +173,16 @@ export const Footer: React.FC<FooterProps> = ({
                 लोकतंत्र वृत्तपत्र, लोकतंत्र मराठी न्यूज
               </p>
               <p className="text-slate-400 leading-relaxed">
-                {OFFICE_CONTACT_INFO.address}
+                {siteSettings.address}
               </p>
               <div className="pt-2 border-t border-slate-800 text-amber-400 font-bold font-mono">
-                फोन: {OFFICE_CONTACT_INFO.phones.join(" / ")}
+                फोन: {siteSettings.phone}
               </div>
               <div className="text-slate-300 font-mono text-[11px]">
-                ई-मेल: {OFFICE_CONTACT_INFO.email}
+                ई-मेल: {siteSettings.email || '—'}
               </div>
               <div className="text-[11px] text-slate-400 pt-1">
-                संपादक: रविंद्र राजाराम क्षिरसागर, प्रविण रामराव घुमरे
+                संपादक: {siteSettings.editorName}
               </div>
             </div>
           </div>
@@ -203,7 +205,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Copyright & Disclaimer Note */}
         <div className="text-center text-xs text-slate-500 space-y-2 pt-4 border-t border-slate-900">
           <p className="font-bold text-slate-400">
-            © 2026 लोकतंत्र मराठी. सर्व हक्क राखीव.
+            © 2026 {siteSettings.copyright}
           </p>
           <p className="text-[11px] text-slate-500 italic bg-slate-900/60 p-2.5 rounded-lg max-w-2xl mx-auto border border-slate-800">
             टीप: वरील बातम्या आणि तपशील वेबसाइट डिझाइन/डेमोसाठी नमुना स्वरूपातील डमी कंटेंट आहेत.
