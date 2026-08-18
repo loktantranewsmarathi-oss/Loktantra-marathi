@@ -125,12 +125,16 @@ const [newPassword, setNewPassword] = useState('');
         imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&q=80&w=1000'
       });
     }
-  };useEffect(() => {
+useEffect(() => {
   const { data: listener } = supabase.auth.onAuthStateChange((event) => {
     if (event === 'PASSWORD_RECOVERY') {
       setIsRecoveryMode(true);
     }
   });
+
+  if (window.location.hash.includes('type=recovery')) {
+    setIsRecoveryMode(true);
+  }
 
   return () => listener.subscription.unsubscribe();
 }, []);
