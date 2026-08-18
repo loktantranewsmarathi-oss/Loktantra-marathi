@@ -125,29 +125,29 @@ const [newPassword, setNewPassword] = useState('');
         imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&q=80&w=1000'
       });
     }
-useEffect(() => {
+useEfuseEffect(() => {
+  const checkRecovery = () => {
+    const hash = window.location.hash;
+    const search = window.location.search;
+
+    if (
+      hash.includes('type=recovery') ||
+      new URLSearchParams(search).get('type') === 'recovery'
+    ) {
+      setIsRecoveryMode(true);
+    }
+  };
+
+  checkRecovery();
+
   const { data: listener } = supabase.auth.onAuthStateChange((event) => {
     if (event === 'PASSWORD_RECOVERY') {
       setIsRecoveryMode(true);
     }
   });
 
-  if (window.location.hash.includes('type=recovery')) {
-    setIsRecoveryMode(true);
-  }
-
   return () => listener.subscription.unsubscribe();
 }, []);
-
-  // Filter articles based on category or search query
-  const filteredSearchArticles = searchQuery.trim()
-    ? allArticles.filter(a => 
-        a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        a.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-}a.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        a.category.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
 
   const categoryFilteredArticles = activeCategory === 'मुख्यपृष्ठ'
     ? allArticles
