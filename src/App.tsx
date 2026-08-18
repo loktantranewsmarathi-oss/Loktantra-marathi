@@ -125,7 +125,7 @@ const [newPassword, setNewPassword] = useState('');
         imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&q=80&w=1000'
       });
     }
-useEfuseEffect(() => {
+useEffect(() => {
   const checkRecovery = () => {
     const hash = window.location.hash;
     const search = window.location.search;
@@ -152,6 +152,13 @@ useEfuseEffect(() => {
   const categoryFilteredArticles = activeCategory === 'मुख्यपृष्ठ'
     ? allArticles
     : allArticles.filter(a => a.category === activeCategory);
+
+  const filteredSearchArticles = searchQuery.trim()
+    ? categoryFilteredArticles.filter(a =>
+        a.title.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+        a.headline.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      )
+    : [];
 
  if (isRecoveryMode) {
   return (
@@ -397,4 +404,5 @@ useEfuseEffect(() => {
 
     </div>
   );
+}
 }
