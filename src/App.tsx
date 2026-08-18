@@ -140,6 +140,8 @@ useEffect(() => {
 
   checkRecovery();
 
+  if (!supabase) return;
+
   const { data: listener } = supabase.auth.onAuthStateChange((event) => {
     if (event === 'PASSWORD_RECOVERY') {
       setIsRecoveryMode(true);
