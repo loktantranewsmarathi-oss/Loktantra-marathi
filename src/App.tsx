@@ -37,7 +37,8 @@ export default function App() {
   const [liveArticles, setLiveArticles] = useState<NewsArticle[]>([]);
   const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === '#admin');
   const [homepageLayout, setHomepageLayout] = useState<LayoutItem[]>(DEFAULT_LAYOUT);
-
+const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
     const onHash = () => setIsAdminRoute(window.location.hash === '#admin');
     window.addEventListener('hashchange', onHash);
