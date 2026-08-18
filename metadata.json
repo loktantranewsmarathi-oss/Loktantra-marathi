@@ -1,0 +1,6 @@
+{
+  "name": "लोकतंत्र वृत्तपत्र e-paper",
+  "description": "लोकतंत्र मराठी डिजिटल न्यूज पोर्टल आणि ई-पेपर - जनतेचा आवाज, जनतेसाठी. नाशिक जिल्हा, ताज्या बातम्या, फोटो गॅलरी, व्हिडिओ न्यूज व दैनंदिन ई-पेपर.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

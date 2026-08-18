@@ -1,0 +1,6 @@
+लोकतंत्र मराठी — Supabase configuration
+
+VITE_SUPABASE_URL=https://tlrljkidssdvzaiabwdm.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_DHE44fhGyObPTO5coSw5Cw_SQHqwVI7
+
+ही Publishable key आहे. Secret/service_role key वापरू नका.
