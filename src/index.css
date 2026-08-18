@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Anek+Marathi:wght@300;400;500;600;700;800&family=Yatra+One&family=Noto+Serif+Devanagari:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
 
 :root {
   --font-marathi-heading: 'Yatra One', 'Noto Serif Devanagari', serif;
