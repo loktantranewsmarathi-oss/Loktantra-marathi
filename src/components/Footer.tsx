@@ -181,9 +181,6 @@ export const Footer: React.FC<FooterProps> = ({
               <div className="text-slate-300 font-mono text-[11px]">
                 ई-मेल: {siteSettings.email || '—'}
               </div>
-              <div className="text-[11px] text-slate-400 pt-1">
-                संपादक 1: {siteSettings.editor1Name}<br />संपादक 2: {siteSettings.editor2Name}
-              </div>
             </div>
           </div>
 
