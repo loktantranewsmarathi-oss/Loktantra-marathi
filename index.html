@@ -12,6 +12,17 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="runtime-error" style="display:none;white-space:pre-wrap;padding:20px;color:#b91c1c;font-family:monospace;"></div>
+    <script>
+      window.addEventListener("error", function(e) {
+        var box=document.getElementById("runtime-error");
+        if(box){box.style.display="block";box.textContent="JS ERROR: "+e.message+"\nFile: "+e.filename+"\nLine: "+e.lineno+"\nColumn: "+e.colno;}
+      });
+      window.addEventListener("unhandledrejection", function(e) {
+        var box=document.getElementById("runtime-error");
+        if(box){box.style.display="block";box.textContent="PROMISE ERROR: "+(e.reason?.message || e.reason || "Unknown error");}
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

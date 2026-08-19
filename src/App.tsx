@@ -125,6 +125,7 @@ const [newPassword, setNewPassword] = useState('');
         imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&q=80&w=1000'
       });
     }
+}
 useEffect(() => {
   const checkRecovery = () => {
     const hash = window.location.hash;
@@ -406,5 +407,4 @@ useEffect(() => {
 
     </div>
   );
-}
 }
