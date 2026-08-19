@@ -35,12 +35,12 @@ export default function App() {
   const [savedModalOpen, setSavedModalOpen] = useState<boolean>(false);
   const [fontSizeMultiplier, setFontSizeMultiplier] = useState<number>(1.0);
   const [liveArticles, setLiveArticles] = useState<NewsArticle[]>([]);
-  const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === '#admin');
+  const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === '#admin' || window.location.hash === '#admin-forgot' || window.location.hash === '#admin-login');
   const [homepageLayout, setHomepageLayout] = useState<LayoutItem[]>(DEFAULT_LAYOUT);
 const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
-    const onHash = () => setIsAdminRoute(window.location.hash === '#admin');
+    const onHash = () => setIsAdminRoute(window.location.hash === '#admin' || window.location.hash === '#admin-forgot' || window.location.hash === '#admin-login');
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
