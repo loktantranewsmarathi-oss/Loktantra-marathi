@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { LogIn, LogOut, PlusCircle, Trash2, Upload, X, Save, Settings, KeyRound, Pencil, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { LayoutEditor } from './LayoutEditor';
+import { EpaperManager } from './EpaperManager';
 import { DEFAULT_SITE_SETTINGS, fetchSiteSettings, saveSiteSettings, SiteSettings } from './SiteSettings';
 
 const categories = ['नाशिक जिल्हा','महाराष्ट्र','शेती व ग्रामीण','शिक्षण व क्रीडा'] as const;
@@ -22,7 +23,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
   const [rows, setRows] = useState<NewsRow[]>([]);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'news'|'settings'|'layout'>('news');
+  const [activeTab, setActiveTab] = useState<'news'|'settings'|'layout'|'epaper'>('news');
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
   const [settingsSaving, setSettingsSaving] = useState(false);
 
@@ -97,7 +98,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
 
   return <Panel>
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6"><div><h2 className="text-2xl font-black">📰 लोकतंत्र मराठी Admin Control Panel</h2><p className="text-sm text-slate-500">बातम्या आणि वेबसाइटची माहिती मोबाइलवरून नियंत्रित करा.</p></div><div className="flex gap-2"><button onClick={signOut} className="border rounded-xl px-3 py-2 flex gap-2"><LogOut size={17}/> Logout</button><button onClick={onClose} className="border rounded-xl p-2"><X/></button></div></div>
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6"><button onClick={()=>setActiveTab('news')} className={`rounded-xl p-3 font-bold ${activeTab==='news'?'bg-red-700 text-white':'border'}`}>📰 बातम्या</button><button onClick={()=>setActiveTab('settings')} className={`rounded-xl p-3 font-bold ${activeTab==='settings'?'bg-red-700 text-white':'border'}`}><Settings className="inline mr-1" size={17}/> Website Settings</button><button onClick={()=>setActiveTab('layout')} className={`rounded-xl p-3 font-bold ${activeTab==='layout'?'bg-red-700 text-white':'border'}`}>↕️ Website Layout</button></div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6"><button onClick={()=>setActiveTab('news')} className={`rounded-xl p-3 font-bold ${activeTab==='news'?'bg-red-700 text-white':'border'}`}>📰 बातम्या</button><button onClick={()=>setActiveTab('settings')} className={`rounded-xl p-3 font-bold ${activeTab==='settings'?'bg-red-700 text-white':'border'}`}><Settings className="inline mr-1" size={17}/> Website Settings</button><button onClick={()=>setActiveTab('layout')} className={`rounded-xl p-3 font-bold ${activeTab==='layout'?'bg-red-700 text-white':'border'}`}>↕️ Website Layout</button><button onClick={()=>setActiveTab('epaper')} className={`rounded-xl p-3 font-bold ${activeTab==='epaper'?'bg-red-700 text-white':'border'}`}>📰 E-Paper</button></div>
 
     {activeTab==='news' && <>
       <form onSubmit={publish} className="grid md:grid-cols-2 gap-4">
@@ -117,10 +118,28 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
     </>}
 
     {activeTab==='settings' && <div className="space-y-6"><div><h3 className="text-xl font-black">⚙️ Website Settings</h3><p className="text-sm text-slate-500">ही माहिती बदलल्यावर Save Settings करा. बदल वेबसाइटच्या Header/Footer मध्ये वापरले जातील.</p></div><div className="grid md:grid-cols-2 gap-4">
-      {([['siteName','वेबसाइटचे नाव'],['tagline','घोषवाक्य'],['editorName','संपादकाचे नाव'],['phone','मोबाईल नंबर'],['whatsapp','WhatsApp नंबर (देश कोडसह)'],['email','ई-मेल'],['address','पत्ता'],['facebook','Facebook URL'],['instagram','Instagram URL'],['youtube','YouTube URL'],['logoUrl','Logo URL'],['liveTvUrl','Live TV URL'],['epaperUrl','E-Paper URL'],['copyright','Copyright मजकूर']] as const).map(([key,label])=><label key={key} className="block"><span className="block text-sm font-bold mb-1">{label}</span><input className="w-full border rounded-xl p-3" value={settings[key]} onChange={e=>updateSetting(key,e.target.value)} placeholder={label}/></label>)}
+      {([
+        ['siteName','वेबसाइटचे नाव'],
+        ['tagline','घोषवाक्य'],
+        ['editor1Name','संपादक 1 चे नाव'],
+        ['editor1Title','संपादक 1 चे पद'],
+        ['editor2Name','संपादक 2 चे नाव'],
+        ['editor2Title','संपादक 2 चे पद'],
+        ['phone1','मोबाईल नंबर 1'],
+        ['phone2','मोबाईल नंबर 2'],
+        ['whatsapp','WhatsApp नंबर (देश कोडसह)'],
+        ['email','ई-मेल'],
+        ['address','कार्यालयीन पत्ता'],
+        ['facebook','Facebook URL'],
+        ['instagram','Instagram URL'],
+        ['youtube','YouTube URL'],
+        ['logoUrl','Logo URL'],
+        ['liveTvUrl','Live TV URL'],
+        ['epaperUrl','E-Paper URL'],
+        ['copyright','Copyright मजकूर']] as const).map(([key,label])=><label key={key} className="block"><span className="block text-sm font-bold mb-1">{label}</span><input className="w-full border rounded-xl p-3" value={settings[key]} onChange={e=>updateSetting(key,e.target.value)} placeholder={label}/></label>)}
     </div><div className="flex flex-wrap gap-2"><button onClick={saveSettings} disabled={settingsSaving} className="bg-red-700 text-white rounded-xl px-5 py-3 font-black flex items-center gap-2"><Save size={18}/> {settingsSaving?'सेव्ह होत आहे...':'Save Settings'}</button>{settings.facebook&&<a href={settings.facebook} target="_blank" rel="noopener noreferrer" className="border rounded-xl px-4 py-3 flex items-center gap-2">Facebook <ExternalLink size={15}/></a>}</div></div>}
 
-    {activeTab==='layout' && <LayoutEditor />}
+    {activeTab==='layout' && <LayoutEditor />}\n    {activeTab==='epaper' && <EpaperManager />}
     {message&&<p className="mt-5 p-3 bg-slate-100 rounded-xl text-sm">{message}</p>}
   </Panel>;
 };

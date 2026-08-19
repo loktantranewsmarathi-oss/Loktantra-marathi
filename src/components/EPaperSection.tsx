@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { 
   FileText, 
   Calendar, 
@@ -15,6 +17,7 @@ import {
   Sparkles 
 } from 'lucide-react';
 import { EPaperPage, EPaperClip } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface EPaperSectionProps {
   pages: EPaperPage[];
@@ -26,11 +29,104 @@ export const EPaperSection: React.FC<EPaperSectionProps> = ({ pages }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [selectedDate, setSelectedDate] = useState<string>("१६ ऑगस्ट २०२६");
   const [copiedClip, setCopiedClip] = useState(false);
+  const [liveEpapers, setLiveEpapers] = useState<any[]>([]);
+  const [liveEpaperLoading, setLiveEpaperLoading] = useState(true);
+  const livePdf = liveEpapers.find((item) => Number(item.page_number) === activePageNum)?.file_url || liveEpapers[0]?.file_url || '';
+  const [livePdfPageCount, setLivePdfPageCount] = useState(8);
+  const pdfCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+  }, []);
+
+  useEffect(() => {
+    const renderPdf = async () => {
+      if (!livePdf || !pdfCanvasRef.current) return;
+
+      try {
+        const response = await fetch(livePdf, {
+          mode: 'cors',
+          cache: 'no-store'
+        });
+
+        if (!response.ok) {
+          throw new Error(`PDF fetch failed: ${response.status}`);
+        }
+
+        const pdfData = new Uint8Array(await response.arrayBuffer());
+
+        const loadingTask = pdfjsLib.getDocument({
+          data: pdfData
+        });
+
+        const pdf = await loadingTask.promise;
+        setLivePdfPageCount(Math.min(pdf.numPages, 8));
+
+        const pdfPageNumber = Math.min(
+          Math.max(activePageNum, 1),
+          Math.min(pdf.numPages, 8)
+        );
+
+        const page = await pdf.getPage(pdfPageNumber);
+
+        const containerWidth =
+          pdfCanvasRef.current.parentElement?.clientWidth || 800;
+
+        const baseViewport = page.getViewport({ scale: 1 });
+        const scale = Math.max(
+          1,
+          Math.min(2, (containerWidth - 20) / baseViewport.width)
+        );
+
+        const viewport = page.getViewport({ scale });
+
+        const canvas = pdfCanvasRef.current;
+        const context = canvas.getContext('2d');
+
+        if (!context) return;
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+        canvas.style.display = 'block';
+
+        await page.render({
+          canvasContext: context,
+          viewport
+        }).promise;
+      } catch (error) {
+        console.error('PDF render error:', error);
+      }
+    };
+
+    renderPdf();
+  }, [livePdf, activePageNum]);
 
   const currentPage = pages.find(p => p.pageNumber === activePageNum) || pages[0];
 
+  React.useEffect(() => {
+    const loadLiveEpapers = async () => {
+      if (!supabase) {
+        setLiveEpaperLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('epapers')
+        .select('id, edition_date, edition_name, page_number, title, file_url')
+        .order('edition_date', { ascending: false })
+        .order('page_number', { ascending: true });
+
+      setLiveEpapers(data || []);
+      setLiveEpaperLoading(false);
+    };
+
+    loadLiveEpapers();
+  }, []);
+
   const handleNextPage = () => {
-    if (activePageNum < pages.length) {
+    if (activePageNum < 8) {
       setActivePageNum(activePageNum + 1);
     }
   };
@@ -105,20 +201,48 @@ export const EPaperSection: React.FC<EPaperSectionProps> = ({ pages }) => {
         </div>
       </div>
 
+      {/* LIVE SUPABASE PDF E-PAPER */}
+      {livePdf && (
+        <div className="mb-6 bg-slate-800 rounded-xl p-3 border border-slate-700">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm sm:text-base font-bold text-amber-300">
+              📰 आजचा Live E-Paper
+            </h3>
+            <a
+              href={livePdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs bg-red-700 hover:bg-red-800 text-white px-3 py-1.5 rounded-lg font-bold"
+            >
+              PDF उघडा
+            </a>
+          </div>
+          <div className="bg-white rounded-lg overflow-auto flex justify-center p-2">
+            <canvas
+              ref={pdfCanvasRef}
+              className="max-w-full h-auto shadow-lg"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Page Tabs Navigation Bar */}
       <div className="flex items-center justify-between bg-slate-800 p-2 rounded-xl mb-6 overflow-x-auto gap-2">
         <div className="flex items-center gap-2">
-          {pages.map((p) => (
+          {Array.from(
+            { length: 8 },
+            (_, index) => index + 1
+          ).map((pageNumber) => (
             <button
-              key={p.pageNumber}
-              onClick={() => setActivePageNum(p.pageNumber)}
+              key={pageNumber}
+              onClick={() => setActivePageNum(pageNumber)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition ${
-                activePageNum === p.pageNumber
+                activePageNum === pageNumber
                   ? 'bg-red-700 text-amber-300 shadow-md'
                   : 'bg-slate-900 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              पान {p.pageNumber}
+              पान {pageNumber}
             </button>
           ))}
         </div>
@@ -134,167 +258,13 @@ export const EPaperSection: React.FC<EPaperSectionProps> = ({ pages }) => {
           </button>
           <button
             onClick={handleNextPage}
-            disabled={activePageNum === pages.length}
+            disabled={activePageNum >= 8}
             className="flex items-center gap-1 bg-slate-900 hover:bg-slate-700 disabled:opacity-40 px-2.5 py-1 rounded text-xs font-bold text-slate-200"
           >
             पुढील पान <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
-
-      {/* E-Paper Digital Page Representation Canvas */}
-      <div className="overflow-x-auto pb-4 flex justify-center">
-        <div 
-          className="epaper-bg text-slate-900 rounded-lg shadow-2xl p-6 sm:p-8 border-4 border-slate-700 relative transition-transform duration-200 origin-top"
-          style={{ 
-            width: '100%', 
-            maxWidth: '850px',
-            minHeight: '1050px',
-            transform: `scale(${zoomLevel})`
-          }}
-        >
-          {/* Print Header Masthead Simulation */}
-          <div className="border-b-4 border-double border-slate-900 pb-4 mb-6 text-center">
-            <div className="flex justify-between items-center text-[11px] font-bold text-slate-700 border-b border-slate-400 pb-1 mb-2">
-              <span>{currentPage.edition}</span>
-              <span>दिनांक: {selectedDate}</span>
-              <span>पान क्र. {currentPage.pageNumber}</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl font-black font-newspaper text-red-800 tracking-tight leading-none mb-1">
-              लोकतंत्र वृत्तपत्र
-            </h1>
-            <p className="text-xs font-bold font-serif-marathi text-slate-800 uppercase tracking-widest">
-              — {currentPage.subtitle} —
-            </p>
-          </div>
-
-          {/* Interactive Clickable Clips Container */}
-          <div className="relative min-h-[850px] border border-slate-300 rounded p-4 bg-white/50 backdrop-blur-xs">
-            
-            <div className="absolute top-2 right-2 bg-red-100 border border-red-300 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-red-600" />
-              <span>बातमीवर क्लिक करून कटिंग वाचा</span>
-            </div>
-
-            {/* Render Clipping Hotspots */}
-            {currentPage.clips.map((clip) => (
-              <div
-                key={clip.id}
-                onClick={() => setSelectedClip(clip)}
-                style={{
-                  position: 'absolute',
-                  left: `${clip.x}%`,
-                  top: `${clip.y}%`,
-                  width: `${clip.width}%`,
-                  height: `${clip.height}%`,
-                }}
-                className="epaper-clip-border rounded p-3 cursor-pointer flex flex-col justify-between group shadow-sm"
-              >
-                <div>
-                  <span className="bg-red-800 text-amber-200 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase mb-1.5 inline-block">
-                    {clip.category}
-                  </span>
-                  <h3 className="text-sm sm:text-base font-extrabold text-slate-950 font-newspaper group-hover:text-red-800 line-clamp-2 leading-tight">
-                    {clip.headline}
-                  </h3>
-                  <p className="text-xs text-slate-700 line-clamp-3 mt-1 font-serif-marathi">
-                    {clip.summary}
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between text-[10px] text-red-700 font-bold border-t border-red-200 pt-1 mt-2">
-                  <span>📰 क्लिप पाहा</span>
-                  <span className="bg-red-700 text-white px-1.5 py-0.5 rounded text-[9px] group-hover:bg-red-900">
-                    झाूम क्लिप
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {/* Decorative Grid Lines to imitate newspaper print column layout */}
-            <div className="pointer-events-none absolute inset-0 grid grid-cols-3 gap-4 opacity-10">
-              <div className="border-r border-slate-900"></div>
-              <div className="border-r border-slate-900"></div>
-              <div></div>
-            </div>
-
-          </div>
-
-          {/* Footer watermark */}
-          <div className="mt-6 pt-2 border-t border-slate-300 text-center text-[10px] text-slate-500 font-bold">
-            © 2026 लोकतंत्र मराठी ई-पेपर डिजिटल एडिशन. सर्व हक्क राखीव.
-          </div>
-
-        </div>
-      </div>
-
-      {/* POPUP NEWS CLIP MODAL */}
-      {selectedClip && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/85 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-amber-50 text-slate-950 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden border-2 border-red-800 printable-area">
-            
-            {/* Clip Header */}
-            <div className="bg-red-800 text-amber-300 px-4 py-3 flex items-center justify-between border-b border-red-900 no-print">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-amber-300" />
-                <span className="font-bold text-xs">ई-पेपर बातमी क्लिप ({selectedClip.category})</span>
-              </div>
-              <button
-                onClick={() => setSelectedClip(null)}
-                className="p-1 hover:bg-red-900 rounded text-amber-200"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Clip Content Body */}
-            <div className="p-6 font-serif-marathi space-y-4">
-              <div className="border-b border-red-200 pb-3">
-                <span className="text-xs font-bold text-red-800 uppercase tracking-widest block mb-1">
-                  लोकतंत्र मराठी ई-पेपर कटिंग
-                </span>
-                <h2 className="text-2xl font-black text-slate-900 font-newspaper leading-snug">
-                  {selectedClip.headline}
-                </h2>
-              </div>
-
-              <div className="bg-white p-3 rounded border border-amber-200 font-bold text-sm text-slate-800">
-                📌 {selectedClip.summary}
-              </div>
-
-              <p className="text-sm text-slate-800 leading-relaxed font-sans-marathi whitespace-pre-line">
-                {selectedClip.fullText}
-              </p>
-
-              <div className="pt-3 border-t border-slate-300 text-[11px] text-slate-500 flex justify-between items-center">
-                <span>दिनांक: {selectedDate}</span>
-                <span>लोकतंत्र मराठी ई-पेपर</span>
-              </div>
-            </div>
-
-            {/* Clip Actions */}
-            <div className="bg-amber-100 p-3 border-t border-amber-200 flex items-center justify-between gap-2 no-print">
-              <button
-                onClick={() => handleShareClip(selectedClip)}
-                className="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>WhatsApp वर क्लिप पाठवा</span>
-              </button>
-
-              <button
-                onClick={() => window.print()}
-                className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>प्रिंट करा</span>
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
 
     </section>
   );

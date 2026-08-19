@@ -36,7 +36,7 @@ export const Footer: React.FC<FooterProps> = ({
     },
     'Contact Us': {
       title: 'संपर्क (Contact Us)',
-      body: `लोकतंत्र वृत्तपत्र, लोकतंत्र मराठी न्यूज\n${siteSettings.address}\nकार्यालयीन संपर्क: ${siteSettings.phone}\nसंपादक: ${siteSettings.editorName}\nई-मेल: ${siteSettings.email || '—'}`
+      body: `लोकतंत्र वृत्तपत्र, लोकतंत्र मराठी न्यूज\n${siteSettings.address}\nकार्यालयीन संपर्क: ${siteSettings.phone1}\nसंपादक 1: ${siteSettings.editor1Name}\nसंपादक 2: ${siteSettings.editor2Name}\nई-मेल: ${siteSettings.email || '—'}`
     },
     'Privacy Policy': {
       title: 'गोपनीयता धोरण (Privacy Policy)',
@@ -176,13 +176,13 @@ export const Footer: React.FC<FooterProps> = ({
                 {siteSettings.address}
               </p>
               <div className="pt-2 border-t border-slate-800 text-amber-400 font-bold font-mono">
-                फोन: {siteSettings.phone}
+                फोन: {siteSettings.phone1}
               </div>
               <div className="text-slate-300 font-mono text-[11px]">
                 ई-मेल: {siteSettings.email || '—'}
               </div>
               <div className="text-[11px] text-slate-400 pt-1">
-                संपादक: {siteSettings.editorName}
+                संपादक 1: {siteSettings.editor1Name}<br />संपादक 2: {siteSettings.editor2Name}
               </div>
             </div>
           </div>

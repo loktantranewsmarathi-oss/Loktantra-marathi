@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button onClick={() => onChangeFontSize(1.15)} className="px-1 font-bold">अ+</button>
             </div>
             <button onClick={onOpenSavedModal} className="flex items-center gap-1 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 text-amber-300 text-xs"><Bookmark className="w-3.5 h-3.5"/><span className="hidden sm:inline font-bold">साठवलेल्या</span><span className="bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 rounded-full">{savedArticlesCount}</span></button>
-            {siteSettings.phone && <a href={`tel:${siteSettings.phone}`} className="hidden sm:flex items-center gap-1 bg-slate-800 px-2.5 py-1 rounded-lg text-xs">📞 {siteSettings.phone}</a>}
+            {siteSettings.phone1 && <a href={`tel:${siteSettings.phone1}`} className="hidden sm:flex items-center gap-1 bg-slate-800 px-2.5 py-1 rounded-lg text-xs">📞 {siteSettings.phone1}</a>}
             {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-xs font-bold"><MessageSquare className="w-3.5 h-3.5"/><span className="hidden sm:inline">WhatsApp</span></a>}
             <button onClick={openAdmin} className="flex items-center gap-1 bg-red-700 hover:bg-red-800 text-white px-2.5 py-1 rounded-lg text-xs font-bold"><LogIn className="w-3.5 h-3.5"/> Admin Login</button>
             <button onClick={openForgot} className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold"><KeyRound className="w-3.5 h-3.5"/> Forgot Password</button>

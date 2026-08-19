@@ -26,6 +26,7 @@ import { Search, MapPin, Sparkles, AlertCircle } from 'lucide-react';
 import { AdminPanel } from './components/AdminPanel';
 import { supabase } from './lib/supabase';
 import { fetchHomepageLayout, DEFAULT_LAYOUT, LayoutItem } from './components/LayoutEditor';
+import { fetchSiteSettings, DEFAULT_SITE_SETTINGS, SiteSettings } from './components/SiteSettings';
 
 export default function App() {
   const [activeCategory, setActiveCategory] = useState<NewsCategory>('मुख्यपृष्ठ');
@@ -37,6 +38,7 @@ export default function App() {
   const [liveArticles, setLiveArticles] = useState<NewsArticle[]>([]);
   const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === '#admin' || window.location.hash === '#admin-forgot' || window.location.hash === '#admin-login');
   const [homepageLayout, setHomepageLayout] = useState<LayoutItem[]>(DEFAULT_LAYOUT);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
 const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 const [newPassword, setNewPassword] = useState('');
   useEffect(() => {
@@ -67,6 +69,10 @@ const [newPassword, setNewPassword] = useState('');
   }, []);
 
   useEffect(() => { fetchHomepageLayout().then(setHomepageLayout); }, []);
+
+  useEffect(() => {
+    fetchSiteSettings().then(setSiteSettings);
+  }, []);
 
   const allArticles = [...liveArticles, ...MAIN_NEWS_ARTICLES.filter(a => !liveArticles.some(l => l.id === a.id))];
   const breakingItems = liveArticles.filter(a => a.isBreaking).map(a => a.title).concat(BREAKING_NEWS_ITEMS);
@@ -236,6 +242,7 @@ useEffect(() => {
           const el = document.getElementById('epaper-reader');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
+        siteSettings={siteSettings}
       />
 
       {/* 2. Breaking News Ticker */}
@@ -298,7 +305,7 @@ useEffect(() => {
                     case 'photo': return <PhotoGallery key={section.id} photos={PHOTO_GALLERY_ITEMS} />;
                     case 'about': return <AboutAndMessage key={section.id} />;
                     case 'advertise': return <AdvertiseSection key={section.id} />;
-                    case 'contact': return <ContactSection key={section.id} />;
+                    case 'contact': return <ContactSection key={section.id} siteSettings={siteSettings} />;
                     default: return null;
                   }
                 })}

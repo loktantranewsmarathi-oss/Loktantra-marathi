@@ -11,9 +11,9 @@ import {
   Building2, 
   CheckCircle 
 } from 'lucide-react';
-import { OFFICE_CONTACT_INFO } from '../data/newsData';
+import { DEFAULT_SITE_SETTINGS, SiteSettings } from './SiteSettings';
 
-export const ContactSection: React.FC = () => {
+export const ContactSection: React.FC<{ siteSettings?: SiteSettings }> = ({ siteSettings = DEFAULT_SITE_SETTINGS }) => {
   const [tipForm, setTipForm] = useState({
     name: '',
     phone: '',
@@ -31,7 +31,7 @@ export const ContactSection: React.FC = () => {
 
     const text = `🚨 *नागरिक बातमी / समस्या (लोकतंत्र मराठी)*\n\n*पाठवणारा:* ${tipForm.name}\n*मोबाईल:* ${tipForm.phone}\n*ठिकाण:* ${tipForm.location || 'पिंपळगाव बसवंत/नाशिक'}\n\n*बातमी/समस्येचा तपशील:*\n${tipForm.newsDetails}`;
 
-    window.open(`https://wa.me/917668525252?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/${siteSettings.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
     setSubmitted(true);
   };
 
@@ -66,7 +66,7 @@ export const ContactSection: React.FC = () => {
               <MapPin className="w-5 h-5 text-red-700 shrink-0 mt-1" />
               <div>
                 <strong className="text-slate-900 font-bold block">लोकतंत्र वृत्तपत्र, लोकतंत्र मराठी न्यूज</strong>
-                {OFFICE_CONTACT_INFO.address}
+                {siteSettings.address}
               </div>
             </div>
 
@@ -75,8 +75,8 @@ export const ContactSection: React.FC = () => {
                 <PhoneCall className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>
                   <strong>कार्यालयीन संपर्क:</strong>{' '}
-                  <a href="tel:7668525252" className="text-red-700 font-bold hover:underline font-mono">7668525252</a>,{' '}
-                  <a href="tel:9860541550" className="text-red-700 font-bold hover:underline font-mono">9860541550</a>
+                  <a href={`tel:${siteSettings.phone1}`} className="text-red-700 font-bold hover:underline font-mono">{siteSettings.phone1}</a>,{' '}
+                  <a href={`tel:${siteSettings.phone2}`} className="text-red-700 font-bold hover:underline font-mono">{siteSettings.phone2}</a>
                 </span>
               </div>
 
@@ -84,8 +84,8 @@ export const ContactSection: React.FC = () => {
                 <Mail className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>
                   <strong>ई-मेल:</strong>{' '}
-                  <a href={`mailto:${OFFICE_CONTACT_INFO.email}`} className="text-red-700 font-bold hover:underline font-mono">
-                    {OFFICE_CONTACT_INFO.email}
+                  <a href={`mailto:${siteSettings.email}`} className="text-red-700 font-bold hover:underline font-mono">
+                    {siteSettings.email}
                   </a>
                 </span>
               </div>
@@ -99,7 +99,10 @@ export const ContactSection: React.FC = () => {
               <span>संपादक मंडळ</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-sans-marathi">
-              {OFFICE_CONTACT_INFO.editors.map((editor, idx) => (
+              {[
+                { name: siteSettings.editor1Name, title: siteSettings.editor1Title },
+                { name: siteSettings.editor2Name, title: siteSettings.editor2Title }
+              ].map((editor, idx) => (
                 <div key={idx} className="bg-white p-3 rounded-lg border border-red-200 shadow-2xs">
                   <span className="text-xs text-red-700 font-bold block">{editor.title}</span>
                   <span className="text-sm font-extrabold text-slate-900">{editor.name}</span>
