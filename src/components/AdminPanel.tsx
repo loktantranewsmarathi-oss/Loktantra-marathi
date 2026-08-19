@@ -59,7 +59,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
   const sendReset = async (e: React.FormEvent) => {
     e.preventDefault(); if (!supabase) return;
     setMessage('Reset link पाठवत आहे...');
-    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), { redirectTo: `${window.location.origin}/#admin` });
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), { redirectTo: window.location.origin });
     setMessage(error ? `Reset link पाठवताना त्रुटी: ${error.message}` : '✅ Reset link तुमच्या ई-मेलवर पाठवली आहे. ई-मेलमधील लिंक उघडा.');
   };
 
