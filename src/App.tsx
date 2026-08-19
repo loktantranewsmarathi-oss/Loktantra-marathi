@@ -207,7 +207,7 @@ useEffect(() => {
       </div>
     </div>
   );
- } if (isAdminRoute) return <AdminPanel onClose={() => { window.location.hash = ''; }} />;
+ } if (isAdminRoute) return <AdminPanel initialMode={window.location.hash === '#admin-forgot' ? 'forgot' : 'login'} onClose={() => { window.location.hash = ''; }} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans-marathi selection:bg-red-700 selection:text-white">
