@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { Flame, ChevronRight, MapPin, Clock, Bookmark, Play, Camera, FileText } from 'lucide-react';
 import { NewsArticle } from '../types';
 
@@ -19,6 +20,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const leadArticle = articles[0]; // 1. नाशिक जिल्ह्यात पावसाची जोरदार हजेरी
   const topStories = articles.slice(1, 5); // 2, 3, 4, 5
+  const [advertisements, setAdvertisements] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadAdvertisements = async () => {
+      if (!supabase) return;
+      const { data } = await supabase
+        .from('advertisements')
+        .select('*')
+        .eq('is_active', true)
+        .in('position', ['homepage_top', 'homepage_middle', 'homepage_bottom'])
+        .order('display_order', { ascending: true });
+      setAdvertisements(data || []);
+    };
+    loadAdvertisements();
+  }, []);
 
   return (
     <section className="mb-10 space-y-4">
@@ -191,17 +207,103 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
         </div>
 
-        {/* BENTO CARD 5: ADVERTISEMENT & CONTACT BENTO (4 Cols) */}
-        <div className="lg:col-span-4 bg-[#F9FAFB] p-5 rounded-xl border border-dashed border-gray-300 flex flex-col justify-between text-center">
-          <div>
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">जाहिरात विशेष</h3>
-            <p className="text-sm font-bold text-gray-800 font-newspaper mb-1">तुमच्या व्यवसायाची जाहिरात येथे करा</p>
-            <p className="text-xs text-gray-500 font-sans-marathi">लोकतंत्र मराठीच्या माध्यमातून हजारो वाचकांपर्यंत पोहोचा</p>
-          </div>
-          <div className="mt-3 pt-2 border-t border-gray-200">
-            <p className="text-xs font-bold text-[#B91C1C] font-mono">संपर्क: 7668525252 | 9860541550</p>
+        {/* BENTO CARD 5: LIVE ADVERTISEMENT */}
+<div className="lg:col-span-4 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+  {advertisements.length > 0 ? (
+  <div className="h-full">
+    {advertisements.slice(0, 3).map((ad) => {
+      const mediaUrl = ad.media_url || ad.video_url || ad.image_url || '';
+      const isVideo = ad.media_type === 'video' || !!ad.video_url;
+
+      const content = (
+        <div className="group cursor-pointer">
+          {mediaUrl && isVideo ? (
+            <video
+              src={mediaUrl}
+              className="w-full h-auto object-contain bg-gray-50"
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+            />
+          ) : mediaUrl ? (
+            <img
+              src={mediaUrl}
+              alt={ad.title}
+              className="w-full h-auto object-contain bg-gray-50 group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : null}
+
+          <div className="p-4 text-center">
+            <div className="text-[10px] font-black text-[#B91C1C] uppercase tracking-widest mb-1">
+              जाहिरात
+            </div>
+
+            <h3 className="text-base font-black text-gray-900 font-newspaper">
+              {ad.title}
+            </h3>
+
+            <p className="text-xs text-gray-500 mt-1 font-sans-marathi">
+              {ad.advertiser_name}
+            </p>
+
+            {ad.description && (
+              <p className="text-sm text-gray-700 mt-2 leading-relaxed font-sans-marathi">
+                {ad.description}
+              </p>
+            )}
+            <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1 font-semibold">
+              👁️ {(ad.views_count ?? 0).toLocaleString("en-IN")} व्ह्यूज
+            </p>
+
+            {ad.link_type && ad.link_type !== 'none' && ad.link_url && (
+              <div className="mt-2 text-[11px] font-bold text-[#B91C1C]">
+                {ad.link_type === 'youtube'
+                  ? '▶️ YouTube वर पाहा'
+                  : ad.link_type === 'whatsapp'
+                    ? '💬 WhatsApp वर संपर्क करा'
+                    : '🌐 अधिक माहितीसाठी येथे क्लिक करा'}
+              </div>
+            )}
           </div>
         </div>
+      );
+
+      return ad.link_url && ad.link_type !== 'none' ? (
+        <a
+          key={ad.id}
+          href={ad.link_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          {content}
+        </a>
+      ) : (
+        <div key={ad.id}>{content}</div>
+      );
+    })}
+  </div>
+) : (
+<div className="h-full p-5 flex flex-col justify-center text-center">
+      <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+        जाहिरात विशेष
+      </h3>
+      <p className="text-sm font-bold text-gray-800 font-newspaper mb-1">
+        तुमच्या व्यवसायाची जाहिरात येथे करा
+      </p>
+      <p className="text-xs text-gray-500 font-sans-marathi">
+        लोकतंत्र मराठीच्या माध्यमातून हजारो वाचकांपर्यंत पोहोचा
+      </p>
+      <div className="mt-3 pt-2 border-t border-gray-200">
+        <p className="text-xs font-bold text-[#B91C1C] font-mono">
+          संपर्क: 7668525252 | 9860541550
+        </p>
+      </div>
+    </div>
+  )}
+</div>
 
       </div>
 

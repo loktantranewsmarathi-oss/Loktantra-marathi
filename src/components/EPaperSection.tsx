@@ -114,7 +114,7 @@ export const EPaperSection: React.FC<EPaperSectionProps> = ({ pages }) => {
 
       const { data } = await supabase
         .from('epapers')
-        .select('id, edition_date, edition_name, page_number, title, file_url')
+        .select('id, edition_date, edition_name, page_number, title, file_url, views_count')
         .order('edition_date', { ascending: false })
         .order('page_number', { ascending: true });
 
@@ -207,6 +207,9 @@ export const EPaperSection: React.FC<EPaperSectionProps> = ({ pages }) => {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm sm:text-base font-bold text-amber-300">
               📰 आजचा Live E-Paper
+            <span className="text-xs text-slate-400 flex items-center gap-1">
+              👁️ {(liveEpapers.find((item) => Number(item.page_number) === activePageNum)?.views_count ?? liveEpapers[0]?.views_count ?? 0).toLocaleString("en-IN")} व्ह्यूज
+            </span>
             </h3>
             <a
               href={livePdf}

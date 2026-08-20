@@ -116,6 +116,7 @@ export const EpaperManager: React.FC = () => {
       file_path: path,
       file_url: fileUrl,
       file_type: 'application/pdf',
+      views_count: Math.floor(Math.random() * 10001) + 5000,
     });
 
     if (insertError) {

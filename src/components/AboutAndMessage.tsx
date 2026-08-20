@@ -84,21 +84,7 @@ export const AboutAndMessage: React.FC = () => {
             </p>
           </div>
 
-          {/* Editors List */}
-          <div className="border-t border-red-800/80 pt-4 space-y-2">
-            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">
-              संपादक मंडळ:
-            </span>
-            {OFFICE_CONTACT_INFO.editors.map((ed, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs text-slate-200 font-bold bg-slate-900/60 p-2 rounded border border-red-900/50">
-                <span className="flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-amber-300" />
-                  {ed.name}
-                </span>
-                <span className="text-[10px] text-amber-300 font-normal">{ed.title}</span>
-              </div>
-            ))}
-          </div>
+          
 
         </div>
 

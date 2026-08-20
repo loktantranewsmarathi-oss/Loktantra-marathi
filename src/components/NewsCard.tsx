@@ -169,6 +169,11 @@ export const NewsCard: React.FC<NewsCardProps> = ({
           ✍️ {article.author}
         </span>
 
+        <span className="text-slate-500 font-semibold flex items-center gap-1">
+          <Eye className="w-3.5 h-3.5" />
+          {(article.viewsCount ?? 0).toLocaleString("en-IN")} व्ह्यूज
+        </span>
+
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => {

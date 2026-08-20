@@ -3,6 +3,7 @@ import { LogIn, LogOut, PlusCircle, Trash2, Upload, X, Save, Settings, KeyRound,
 import { supabase } from '../lib/supabase';
 import { LayoutEditor } from './LayoutEditor';
 import { EpaperManager } from './EpaperManager';
+import { AdvertisementsManager } from './AdvertisementsManager';
 import { DEFAULT_SITE_SETTINGS, fetchSiteSettings, saveSiteSettings, SiteSettings } from './SiteSettings';
 
 const categories = ['नाशिक जिल्हा','महाराष्ट्र','शेती व ग्रामीण','शिक्षण व क्रीडा'] as const;
@@ -23,7 +24,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
   const [rows, setRows] = useState<NewsRow[]>([]);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'news'|'settings'|'layout'|'epaper'>('news');
+  const [activeTab, setActiveTab] = useState<'news'|'settings'|'layout'|'epaper'|'ads'>('news');
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
   const [settingsSaving, setSettingsSaving] = useState(false);
 
@@ -76,7 +77,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
 
   const publish = async (e: React.FormEvent) => {
     e.preventDefault(); if (!supabase || !isAdmin) return;
-    const payload = { ...form, tags:[] };
+    const payload = editingId ? { ...form, tags:[] } : { ...form, tags:[], views_count: Math.floor(Math.random() * 10001) + 5000 };
     const result = editingId ? await supabase.from('news').update(payload).eq('id', editingId) : await supabase.from('news').insert(payload);
     if (result.error) setMessage(`बातमी सेव्ह अयशस्वी: ${result.error.message}`);
     else { setMessage(editingId ? 'बातमी अपडेट झाली.' : 'बातमी प्रकाशित झाली.'); setForm({...emptyForm}); setEditingId(null); await load(); }
@@ -98,7 +99,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
 
   return <Panel>
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6"><div><h2 className="text-2xl font-black">📰 लोकतंत्र मराठी Admin Control Panel</h2><p className="text-sm text-slate-500">बातम्या आणि वेबसाइटची माहिती मोबाइलवरून नियंत्रित करा.</p></div><div className="flex gap-2"><button onClick={signOut} className="border rounded-xl px-3 py-2 flex gap-2"><LogOut size={17}/> Logout</button><button onClick={onClose} className="border rounded-xl p-2"><X/></button></div></div>
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6"><button onClick={()=>setActiveTab('news')} className={`rounded-xl p-3 font-bold ${activeTab==='news'?'bg-red-700 text-white':'border'}`}>📰 बातम्या</button><button onClick={()=>setActiveTab('settings')} className={`rounded-xl p-3 font-bold ${activeTab==='settings'?'bg-red-700 text-white':'border'}`}><Settings className="inline mr-1" size={17}/> Website Settings</button><button onClick={()=>setActiveTab('layout')} className={`rounded-xl p-3 font-bold ${activeTab==='layout'?'bg-red-700 text-white':'border'}`}>↕️ Website Layout</button><button onClick={()=>setActiveTab('epaper')} className={`rounded-xl p-3 font-bold ${activeTab==='epaper'?'bg-red-700 text-white':'border'}`}>📰 E-Paper</button></div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-6"><button onClick={()=>setActiveTab('news')} className={`rounded-xl p-3 font-bold ${activeTab==='news'?'bg-red-700 text-white':'border'}`}>📰 बातम्या</button><button onClick={()=>setActiveTab('settings')} className={`rounded-xl p-3 font-bold ${activeTab==='settings'?'bg-red-700 text-white':'border'}`}><Settings className="inline mr-1" size={17}/> Website Settings</button><button onClick={()=>setActiveTab('layout')} className={`rounded-xl p-3 font-bold ${activeTab==='layout'?'bg-red-700 text-white':'border'}`}>↕️ Website Layout</button><button onClick={()=>setActiveTab('epaper')} className={`rounded-xl p-3 font-bold ${activeTab==='epaper'?'bg-red-700 text-white':'border'}`}>📰 E-Paper</button><button onClick={()=>setActiveTab('ads')} className={`rounded-xl p-3 font-bold ${activeTab==='ads'?'bg-red-700 text-white':'border'}`}>📢 जाहिराती</button></div>
 
     {activeTab==='news' && <>
       <form onSubmit={publish} className="grid md:grid-cols-2 gap-4">
@@ -140,6 +141,7 @@ export const AdminPanel: React.FC<Props> = ({ onClose, initialMode='login', onSe
     </div><div className="flex flex-wrap gap-2"><button onClick={saveSettings} disabled={settingsSaving} className="bg-red-700 text-white rounded-xl px-5 py-3 font-black flex items-center gap-2"><Save size={18}/> {settingsSaving?'सेव्ह होत आहे...':'Save Settings'}</button>{settings.facebook&&<a href={settings.facebook} target="_blank" rel="noopener noreferrer" className="border rounded-xl px-4 py-3 flex items-center gap-2">Facebook <ExternalLink size={15}/></a>}</div></div>}
 
     {activeTab==='layout' && <LayoutEditor />}\n    {activeTab==='epaper' && <EpaperManager />}
+    {activeTab==='ads' && <AdvertisementsManager />}
     {message&&<p className="mt-5 p-3 bg-slate-100 rounded-xl text-sm">{message}</p>}
   </Panel>;
 };
