@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local source backup files
+*.backup.tsx
+*.backup
+*.before-*.tsx
+*.before-*
+
+*.backup.ts
