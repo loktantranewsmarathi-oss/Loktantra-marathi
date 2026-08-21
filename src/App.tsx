@@ -42,27 +42,37 @@ const [newPassword, setNewPassword] = useState('');
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
-
-  useEffect(() => {
-    const loadLiveNews = async () => {
-      if (!supabase) return;
-      const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false })
-        .limit(100);
-      if (error || !data) return;
-      const mapped: NewsArticle[] = data.map((n: any) => ({
-        id: n.id, title: n.title, category: n.category as NewsCategory, summary: n.summary,
-        content: n.content, date: n.date, time: n.time, location: n.location, author: n.author,
-        imageUrl: n.image_url || '', imageCaption: n.image_caption || undefined,
-        isBreaking: n.is_breaking, isFeatured: n.is_featured, viewsCount: n.views_count, tags: n.tags || []
-      }));
-      setLiveArticles(mapped);
-    };
-    loadLiveNews();
-  }, []);
+useEffect(() => {
+  if (!supabase) return;
+  let mounted = true;
+  const loadLiveNews = async () => {
+    const { data, error } = await supabase
+      .from("news")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error || !data || !mounted) return;
+    const mapped: NewsArticle[] = data.map((n: any) => ({
+      id: n.id, title: n.title, category: n.category as NewsCategory, summary: n.summary,
+      content: n.content, date: n.date, time: n.time, location: n.location, author: n.author,
+      imageUrl: n.image_url || "", imageCaption: n.image_caption || undefined,
+      isBreaking: n.is_breaking, isFeatured: n.is_featured, viewsCount: n.views_count, tags: n.tags || []
+    }));
+    setLiveArticles(mapped);
+  };
+  loadLiveNews();
+  const channel = supabase
+    .channel("live-news-updates")
+    .on("postgres_changes", { event: "*", schema: "public", table: "news" }, () => {
+      loadLiveNews();
+    })
+    .subscribe();
+  return () => {
+    mounted = false;
+    supabase.removeChannel(channel);
+  };
+}, []);
 
   useEffect(() => { fetchHomepageLayout().then(setHomepageLayout); }, []);
 
