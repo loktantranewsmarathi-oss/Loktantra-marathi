@@ -23,19 +23,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [advertisements, setAdvertisements] = useState<any[]>([]);
 
   useEffect(() => {
-    const loadAdvertisements = async () => {
-      if (!supabase) return;
-      const { data } = await supabase
-        .from('advertisements')
-        .select('*')
-        .eq('is_active', true)
-        .in('position', ['homepage_top', 'homepage_middle', 'homepage_bottom'])
-        .order('display_order', { ascending: true });
-      setAdvertisements(data || []);
-    };
-    loadAdvertisements();
-  }, []);
+    if (!supabase) return;
+    let mounted = true;
 
+    const loadAdvertisements = async () => {
+      const { data, error } = await supabase
+        .from("advertisements")
+        .select("*")
+        .eq("is_active", true)
+        .in("position", ["homepage_top", "homepage_middle", "homepage_bottom"])
+        .order("display_order", { ascending: true });
+
+      if (!error && mounted) setAdvertisements(data || []);
+    };
+
+    loadAdvertisements();
+
+    const channel = supabase
+      .channel("live-advertisements")
+      .on("postgres_changes", { event: "*", schema: "public", table: "advertisements" }, () => {
+        loadAdvertisements();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
   return (
     <section className="mb-10 space-y-4">
       
