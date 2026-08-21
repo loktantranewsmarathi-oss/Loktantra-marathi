@@ -212,7 +212,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   {advertisements.length > 0 ? (
   <div className="h-full">
     {advertisements.slice(0, 3).map((ad) => {
-      const mediaUrl = ad.media_url || ad.video_url || ad.image_url || '';
+      const mediaUrl = ad.media_type === 'video' ? (ad.media_url || ad.video_url || '' ) : (ad.image_url || '' );
       const isVideo = ad.media_type === 'video' || !!ad.video_url;
 
       const content = (
