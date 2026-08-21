@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MAIN_NEWS_ARTICLES, 
-  BREAKING_NEWS_ITEMS, 
-  PHOTO_GALLERY_ITEMS, 
-  VIDEO_NEWS_ITEMS, 
-  EPAPER_PAGES_DATA,
+import {
+  PHOTO_GALLERY_ITEMS,
   OFFICE_CONTACT_INFO
 } from './data/newsData';
 import { NewsCategory, NewsArticle } from './types';
@@ -74,8 +70,8 @@ const [newPassword, setNewPassword] = useState('');
     fetchSiteSettings().then(setSiteSettings);
   }, []);
 
-  const allArticles = [...liveArticles, ...MAIN_NEWS_ARTICLES.filter(a => !liveArticles.some(l => l.id === a.id))];
-  const breakingItems = liveArticles.filter(a => a.isBreaking).map(a => a.title).concat(BREAKING_NEWS_ITEMS);
+  const allArticles = liveArticles;
+  const breakingItems = liveArticles.filter(a => a.isBreaking).map(a => a.title);
 
   // Load saved bookmarks from localStorage
   useEffect(() => {
@@ -300,8 +296,8 @@ useEffect(() => {
                   switch (section.id) {
                     case 'hero': return <HeroSection key={section.id} articles={allArticles} onSelectArticle={setSelectedArticle} savedArticleIds={savedArticleIds} onToggleSave={handleToggleSave} />;
                     case 'nashik': return <NashikDistrictSection key={section.id} articles={allArticles} onSelectArticle={setSelectedArticle} savedArticleIds={savedArticleIds} onToggleSave={handleToggleSave} />;
-                    case 'epaper': return <EPaperSection key={section.id} pages={EPAPER_PAGES_DATA} />;
-                    case 'video': return <VideoGallery key={section.id} videos={VIDEO_NEWS_ITEMS} />;
+                    case 'epaper': return <EPaperSection key={section.id} pages={[]} />;
+                    case 'video': return <VideoGallery key={section.id} videos={[]} />;
                     case 'photo': return <PhotoGallery key={section.id} photos={PHOTO_GALLERY_ITEMS} />;
                     case 'about': return <AboutAndMessage key={section.id} />;
                     case 'advertise': return <AdvertiseSection key={section.id} />;
@@ -324,12 +320,12 @@ useEffect(() => {
 
             {/* EPAPER DIRECT VIEW */}
             {activeCategory === 'ई-पेपर' && (
-              <EPaperSection pages={EPAPER_PAGES_DATA} />
+              <EPaperSection pages={[]} />
             )}
 
             {/* VIDEO DIRECT VIEW */}
             {activeCategory === 'व्हिडिओ' && (
-              <VideoGallery videos={VIDEO_NEWS_ITEMS} />
+              <VideoGallery videos={[]} />
             )}
 
             {/* PHOTO GALLERY DIRECT VIEW */}
