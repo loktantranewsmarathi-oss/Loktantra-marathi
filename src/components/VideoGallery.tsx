@@ -10,6 +10,8 @@ export const VideoGallery: React.FC<VideoGalleryProps> = ({ videos }) => {
   const [selectedVideo, setSelectedVideo] = useState<VideoNewsItem | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('सर्व');
 
+  if (!videos || videos.length === 0) return null;
+
   const categories = [
     'सर्व',
     'ब्रेकिंग न्यूज',
