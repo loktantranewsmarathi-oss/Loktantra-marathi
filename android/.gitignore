@@ -109,3 +109,7 @@ variables.gradle.after-*
 
 # Local Gradle troubleshooting backups
 variables.gradle.*-backup
+
+# Play Store signing keys - NEVER COMMIT
+*.jks
+*.keystore
