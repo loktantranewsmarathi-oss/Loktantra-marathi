@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   PHOTO_GALLERY_ITEMS,
+  VIDEO_NEWS_ITEMS,
   OFFICE_CONTACT_INFO
 } from './data/newsData';
 import { NewsCategory, NewsArticle } from './types';
@@ -307,7 +308,7 @@ useEffect(() => {
                     case 'hero': return <HeroSection key={section.id} articles={allArticles} onSelectArticle={setSelectedArticle} savedArticleIds={savedArticleIds} onToggleSave={handleToggleSave} />;
                     case 'nashik': return <NashikDistrictSection key={section.id} articles={allArticles} onSelectArticle={setSelectedArticle} savedArticleIds={savedArticleIds} onToggleSave={handleToggleSave} />;
                     case 'epaper': return <EPaperSection key={section.id} pages={[]} />;
-                    case 'video': return <VideoGallery key={section.id} videos={[]} />;
+                    case 'video': return <VideoGallery key={section.id} videos={VIDEO_NEWS_ITEMS} />;
                     case 'photo': return <PhotoGallery key={section.id} photos={PHOTO_GALLERY_ITEMS} />;
                     case 'about': return <AboutAndMessage key={section.id} />;
                     case 'advertise': return <AdvertiseSection key={section.id} />;
@@ -335,7 +336,7 @@ useEffect(() => {
 
             {/* VIDEO DIRECT VIEW */}
             {activeCategory === 'व्हिडिओ' && (
-              <VideoGallery videos={[]} />
+              <VideoGallery videos={VIDEO_NEWS_ITEMS} />
             )}
 
             {/* PHOTO GALLERY DIRECT VIEW */}
