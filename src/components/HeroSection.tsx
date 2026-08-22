@@ -34,7 +34,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         .in("position", ["homepage_top", "homepage_middle", "homepage_bottom"])
         .order("display_order", { ascending: true });
 
-      if (!error && mounted) setAdvertisements(data || []);
+      if (error) console.error("ADVERTISEMENT LOAD ERROR:", error);
+      else if (mounted) {
+        console.log("ADVERTISEMENT LOAD SUCCESS:", data?.length ?? 0, data);
+        setAdvertisements(data || []);
+      }
     };
 
     loadAdvertisements();
