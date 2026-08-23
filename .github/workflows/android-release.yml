@@ -52,13 +52,11 @@ jobs:
         env:
           STORE_PASSWORD: ${{ secrets.LOKTANTRA_UPLOAD_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.LOKTANTRA_UPLOAD_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.LOKTANTRA_UPLOAD_KEY_PASSWORD }}
         run: |
           {
             echo "LOKTANTRA_UPLOAD_STORE_FILE=loktantra-upload-key.jks"
             echo "LOKTANTRA_UPLOAD_STORE_PASSWORD=$STORE_PASSWORD"
             echo "LOKTANTRA_UPLOAD_KEY_ALIAS=$KEY_ALIAS"
-            echo "LOKTANTRA_UPLOAD_KEY_PASSWORD=$KEY_PASSWORD"
           } >> android/gradle.properties
 
       - name: Build Release AAB

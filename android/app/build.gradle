@@ -22,13 +22,12 @@ android {
             def storeFilePath = project.findProperty("LOKTANTRA_UPLOAD_STORE_FILE")
             def storePasswordValue = project.findProperty("LOKTANTRA_UPLOAD_STORE_PASSWORD")
             def keyAliasValue = project.findProperty("LOKTANTRA_UPLOAD_KEY_ALIAS")
-            def keyPasswordValue = project.findProperty("LOKTANTRA_UPLOAD_KEY_PASSWORD")
 
-            if (storeFilePath && storePasswordValue && keyAliasValue && keyPasswordValue) {
+            if (storeFilePath && storePasswordValue && keyAliasValue) {
                 storeFile file(storeFilePath)
                 storePassword storePasswordValue
                 keyAlias keyAliasValue
-                keyPassword keyPasswordValue
+                keyPassword storePasswordValue
             }
         }
     }
