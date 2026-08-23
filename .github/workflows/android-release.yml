@@ -59,6 +59,13 @@ jobs:
             echo "LOKTANTRA_UPLOAD_KEY_ALIAS=$KEY_ALIAS"
           } >> android/gradle.properties
 
+      - name: Validate release keystore
+        env:
+          STORE_PASSWORD: ${{ secrets.LOKTANTRA_UPLOAD_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.LOKTANTRA_UPLOAD_KEY_ALIAS }}
+        run: |
+          keytool -list -v -keystore android/app/loktantra-upload-key.jks -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+          echo "Release keystore validation: OK"
       - name: Build Release AAB
         working-directory: android
         run: ./gradlew bundleRelease --no-daemon
